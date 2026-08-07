@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase";
-import { doc, getDoc, collection, getDocs, query, where, limit } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import DetailsClient from "./DetailsClient";
 import "./details.css";
 
@@ -29,11 +29,10 @@ export default async function DetailsPage({ params }) {
 
   let product = null;
   let inStock = true;
-  let initialReviews = [];
-  let initialRelated = [];
 
   if (id) {
     try {
+      // Instant Fast Parallel Fetch for Product & Stock
       const [productSnap, stockSnap] = await Promise.all([
         getDoc(doc(db, "products", id)),
         getDoc(doc(db, "stock", id))
@@ -45,57 +44,18 @@ export default async function DetailsPage({ params }) {
       if (stockSnap.exists()) {
         inStock = stockSnap.data().inStock !== false;
       }
-
-      if (product) {
-        // Fetch product reviews
-        try {
-          const revSnap = await getDocs(collection(db, `reviews_${id}`));
-          initialReviews = revSnap.docs.map(d => {
-            const data = d.data();
-            return {
-              id: d.id,
-              ...data,
-              createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : null
-            };
-          });
-        } catch (e) {
-          console.error("Error fetching reviews:", e);
-        }
-
-        // Fetch related products
-        if (product.category) {
-          try {
-            const q = query(
-              collection(db, "products"),
-              where("category", "==", product.category),
-              limit(6)
-            );
-            const relSnap = await getDocs(q);
-            initialRelated = relSnap.docs
-              .map(d => ({ id: d.id, ...d.data() }))
-              .filter(p => String(p.id) !== String(id));
-          } catch (e) {
-            console.error("Error fetching related products:", e);
-          }
-        }
-      }
     } catch (err) {
-      console.error("Firestore Load Error:", err);
+      console.error("Firestore Fast Load Error:", err);
     }
   }
 
-  // Sanitize Firestore Timestamp/Dates for Server-to-Client props serialization
   const serializedProduct = product ? JSON.parse(JSON.stringify(product)) : null;
-  const serializedReviews = JSON.parse(JSON.stringify(initialReviews));
-  const serializedRelated = JSON.parse(JSON.stringify(initialRelated));
 
   return (
     <DetailsClient
       productId={id}
       initialProduct={serializedProduct}
       initialInStock={inStock}
-      initialReviews={serializedReviews}
-      initialRelated={serializedRelated}
     />
   );
 }

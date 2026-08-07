@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where, limit, serverTimestamp } from "firebase/firestore";
 
 const SIZE_CHARTS = {
   tshirt: {
@@ -26,14 +26,12 @@ function optimizeImg(url, width = 600) {
 export default function DetailsClient({
   productId,
   initialProduct,
-  initialInStock,
-  initialReviews,
-  initialRelated
+  initialInStock
 }) {
   const [product] = useState(initialProduct);
   const [inStock] = useState(initialInStock);
-  const [reviews, setReviews] = useState(initialReviews || []);
-  const [relatedProducts] = useState(initialRelated || []);
+  const [reviews, setReviews] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   const [cartCount, setCartCount] = useState(0);
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
@@ -81,6 +79,7 @@ export default function DetailsClient({
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); }
     updateCartCount();
 
     if (product) {
@@ -91,6 +90,35 @@ export default function DetailsClient({
       }
     }
 
+    // Lazy load reviews & related products in background after page is already open
+    if (productId) {
+      // 1. Fetch Reviews
+      getDocs(collection(db, `reviews_${productId}`))
+        .then((revSnap) => {
+          const list = revSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          setReviews(list);
+        })
+        .catch(() => {});
+
+      // 2. Fetch Related Products
+      if (product?.category) {
+        const q = query(
+          collection(db, "products"),
+          where("category", "==", product.category),
+          limit(6)
+        );
+        getDocs(q)
+          .then((relSnap) => {
+            const list = relSnap.docs
+              .map((d) => ({ id: d.id, ...d.data() }))
+              .filter((p) => String(p.id) !== String(productId));
+            setRelatedProducts(list);
+          })
+          .catch(() => {});
+      }
+    }
+
+    // Scroll reveal observer
     const targets = document.querySelectorAll(".reveal-up, .trust-item, .related-card, .summary-card, .tabs-area");
     if (targets.length > 0) {
       const observer = new IntersectionObserver(
@@ -106,7 +134,7 @@ export default function DetailsClient({
       );
       targets.forEach((t) => observer.observe(t));
     }
-  }, [product]);
+  }, [product, productId]);
 
   // Facebook Pixel Pattern
   useEffect(() => {
@@ -213,7 +241,6 @@ export default function DetailsClient({
     }
   };
 
-  // Buy Now with clean navigation to prevent CSS bleed on Checkout page
   const handleBuyNow = () => {
     if (!inStock) {
       showToast("দুঃখিত, এই প্রডাক্টটি বর্তমানে স্টকে নেই।", true);
@@ -354,7 +381,7 @@ export default function DetailsClient({
             {product.category && (
               <>
                 <span className="sep">›</span>
-                <Link href={`/products?cat=${encodeURIComponent(product.category)}`}>{product.category}</Link>
+                <a href={`/products?cat=${encodeURIComponent(product.category)}`}>{product.category}</a>
               </>
             )}
             <span className="sep">›</span>
@@ -709,7 +736,7 @@ export default function DetailsClient({
           <div className="nav-container">
             <div className="section-heading">
               <span className="sub-title">RECOMMENDED FOR YOU</span>
-              {" "}<h2>Related Products</h2>
+              <h2>Related Products</h2>
             </div>
             <div className="related-slider">
               <div className="related-track" id="relatedTrack">
@@ -810,12 +837,12 @@ export default function DetailsClient({
               <h4>SHOP</h4>
               <ul>
                 <li><a href="/products">New Arrivals</a></li>
-                <li><Link href="/products?cat=tshirt">T-Shirts</Link></li>
-                <li><Link href="/products?cat=shirt">Shirts</Link></li>
-                <li><Link href="/products?cat=pant">Pants</Link></li>
-                <li><Link href="/products?cat=watch">Watches</Link></li>
-                <li><Link href="/products?cat=wallet">Wallets</Link></li>
-                <li><Link href="/products?cat=combo">Combo Deals</Link></li>
+                <li><a href="/products?cat=tshirt">T-Shirts</a></li>
+                <li><a href="/products?cat=shirt">Shirts</a></li>
+                <li><a href="/products?cat=pant">Pants</a></li>
+                <li><a href="/products?cat=watch">Watches</a></li>
+                <li><a href="/products?cat=wallet">Wallets</a></li>
+                <li><a href="/products?cat=combo">Combo Deals</a></li>
               </ul>
             </div>
 
