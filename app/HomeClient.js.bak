@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -84,9 +83,9 @@ export default function HomeClient({ products: initialProducts }) {
     const handleScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener('scroll', handleScroll);
 
-    // Live Real-Time listener on products collection, newest first
-    const unsubscribe = onSnapshot(
-      query(collection(db, 'products'), orderBy('createdAt', 'desc')),
+    // Live Real-Time listener on products collection
+const unsubscribe = onSnapshot(
+  query(collection(db, 'products'), orderBy('createdAt', 'desc')),
       (snap) => {
         const list = snap.docs
           .map((d) => ({ id: d.id, ...d.data() }))
@@ -239,7 +238,7 @@ export default function HomeClient({ products: initialProducts }) {
 
       {/* ======== NAVBAR ======== */}
       <header className={`navbar ${scrolled ? 'scrolled' : ''}`} id="navbar">
-        <Link href="/" className="logo">
+        <a href="/" className="logo">
           <Image
             src="/545sd4fdsf54.webp"
             className="logo-img"
@@ -249,26 +248,26 @@ export default function HomeClient({ products: initialProducts }) {
             unoptimized
           />
           <span className="logo-name">Gentle Vibe <em>BD</em></span>
-        </Link>
+        </a>
 
         <nav className={`nav-links ${menuOpen ? 'open' : ''}`} id="navLinks">
-          <Link href="/" className="active" onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link href="/products" onClick={() => setMenuOpen(false)}>Shop</Link>
-          <Link href="/checkout" onClick={() => setMenuOpen(false)}>Checkout</Link>
-          <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
-          <Link href="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
-          <Link href="/track" onClick={() => setMenuOpen(false)}>Track Order</Link>
+          <a href="/" className="active" onClick={() => setMenuOpen(false)}>Home</a>
+          <a href="/products" onClick={() => setMenuOpen(false)}>Shop</a>
+          <a href="/checkout" onClick={() => setMenuOpen(false)}>Checkout</a>
+          <a href="/about" onClick={() => setMenuOpen(false)}>About</a>
+          <a href="/contact" onClick={() => setMenuOpen(false)}>Contact Us</a>
+          <a href="/track" onClick={() => setMenuOpen(false)}>Track Order</a>
         </nav>
 
         <div className="nav-actions">
-          <Link className="cart-btn" id="cartBtn" href="/cart" aria-label="Cart">
+          <a className="cart-btn" id="cartBtn" href="/cart" aria-label="Cart">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
               <line x1="3" y1="6" x2="21" y2="6"/>
               <path d="M16 10a4 4 0 01-8 0"/>
             </svg>
             <span className="cart-count" id="cartCount">{cartCount}</span>
-          </Link>
+          </a>
           <button
             className={`menu-toggle ${menuOpen ? 'open' : ''}`}
             id="menuBtn"
@@ -303,10 +302,10 @@ export default function HomeClient({ products: initialProducts }) {
           <h1>Elevate Your<br /><span>Style Game</span></h1>
           <p>Premium T-shirts, luxury watches &amp; exclusive combos. Bangladesh's finest destination for refined men's fashion.</p>
           <div className="hero-cta">
-            <Link className="btn-primary" id="shopNowBtn" href="/products">
+            <a className="btn-primary" id="shopNowBtn" href="/products">
               Shop Now
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </Link>
+            </a>
             <button
               className="btn-ghost"
               id="lookbookBtn"
@@ -354,17 +353,17 @@ export default function HomeClient({ products: initialProducts }) {
       {/* ======== CATEGORY QUICK STRIP ======== */}
       <div className="cat-strip" id="categories">
         {catItems.map((item, i) => (
-          <Link key={i} className={`cat-item ${i === 0 ? 'active' : ''}`} href={item.href}>
+          <a key={i} className={`cat-item ${i === 0 ? 'active' : ''}`} href={item.href}>
             <span className="cat-circle">
               <Image src={item.img} alt={item.alt} width={64} height={64} unoptimized loading="lazy" />
             </span>
             <span className="cat-label">{item.label}</span>
-          </Link>
+          </a>
         ))}
-        <Link className="cat-item sale" href="/products?cat=Sale">
+        <a className="cat-item sale" href="/products?cat=Sale">
           <span className="cat-circle">SALE</span>
           <span className="cat-label">Sale</span>
-        </Link>
+        </a>
       </div>
 
       {/* ======== SHOP BY CATEGORY ======== */}
@@ -375,15 +374,15 @@ export default function HomeClient({ products: initialProducts }) {
               <div className="eyebrow">Collections</div>
               <h2>Find Your<br />Perfect Fit</h2>
             </div>
-            <Link href="/products" className="view-all">
+            <a href="/products" className="view-all">
               View All Categories
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </Link>
+            </a>
           </div>
 
           <div className="cat-grid">
             {catCards.map((card, i) => (
-              <Link key={i} className="ph cat-card reveal-up" href={card.href}>
+              <a key={i} className="ph cat-card reveal-up" href={card.href}>
                 <Image src={card.img} alt={card.alt} fill unoptimized loading="lazy" style={{ objectFit: 'cover' }} />
                 <div className="cap">
                   <h3>{card.label}</h3>
@@ -391,7 +390,7 @@ export default function HomeClient({ products: initialProducts }) {
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                   </span>
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
 
@@ -402,10 +401,10 @@ export default function HomeClient({ products: initialProducts }) {
               <div className="promo-content">
                 <div className="eyebrow">Limited Time Offer</div>
                 <h3>Summer Sale<br />Up to 38% Off</h3>
-                <Link className="btn-primary" style={{ width: 'fit-content' }} href="/products?cat=tshirt">
+                <a className="btn-primary" style={{ width: 'fit-content' }} href="/products?cat=tshirt">
                   Shop The Sale
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </Link>
+                </a>
               </div>
             </div>
 
@@ -415,10 +414,10 @@ export default function HomeClient({ products: initialProducts }) {
               <div className="promo-content">
                 <div className="eyebrow">New Arrivals</div>
                 <h3>Fresh Combo Deals<br />Just Landed</h3>
-                <Link className="btn-primary" style={{ width: 'fit-content' }} id="exploreNewBtn" href="/products?cat=combo">
+                <a className="btn-primary" style={{ width: 'fit-content' }} id="exploreNewBtn" href="/products?cat=combo">
                   Explore New In
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -488,10 +487,10 @@ export default function HomeClient({ products: initialProducts }) {
 
       {/* ======== VIEW ALL PRODUCTS CTA ======== */}
       <div className="view-all-cta reveal-up">
-        <Link href="/products" className="view-all-btn">
+        <a href="/products" className="view-all-btn">
           View All Products
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </Link>
+        </a>
       </div>
 
       {/* ======== APP DOWNLOAD PROMO ======== */}
@@ -598,30 +597,30 @@ export default function HomeClient({ products: initialProducts }) {
             <div className="foot-col">
               <h4>SHOP</h4>
               <ul>
-                <li><Link href="/products">All Products</Link></li>
-                <li><Link href="/products?cat=tshirt">T-Shirts</Link></li>
-                <li><Link href="/products?cat=shirt">Shirts</Link></li>
-                <li><Link href="/products?cat=pant">Pants</Link></li>
-                <li><Link href="/products?cat=watch">Watches</Link></li>
-                <li><Link href="/products?cat=wallet">Wallets</Link></li>
-                <li><Link href="/products?cat=combo">Combo Deals</Link></li>
+                <li><a href="/products">All Products</a></li>
+                <li><a href="/products?cat=tshirt">T-Shirts</a></li>
+                <li><a href="/products?cat=shirt">Shirts</a></li>
+                <li><a href="/products?cat=pant">Pants</a></li>
+                <li><a href="/products?cat=watch">Watches</a></li>
+                <li><a href="/products?cat=wallet">Wallets</a></li>
+                <li><a href="/products?cat=combo">Combo Deals</a></li>
               </ul>
             </div>
 
             <div className="foot-col">
               <h4>CUSTOMER CARE</h4>
               <ul>
-                <li><Link href="/contact">Contact Us</Link></li>
-                <li><Link href="/track">Track Order</Link></li>
-                <li><Link href="/terms">Terms &amp; Conditions</Link></li>
-                <li><Link href="/privacy">Privacy Policy</Link></li>
+                <li><a href="/contact">Contact Us</a></li>
+                <li><a href="/track">Track Order</a></li>
+                <li><a href="/terms">Terms &amp; Conditions</a></li>
+                <li><a href="/privacy">Privacy Policy</a></li>
               </ul>
             </div>
 
             <div className="foot-col">
               <h4>ABOUT US</h4>
               <ul>
-                <li><Link href="/about">Our Story</Link></li>
+                <li><a href="/about">Our Story</a></li>
                 <li><a href="mailto:gentlevibebd@gmail.com">gentlevibebd@gmail.com</a></li>
                 <li><a href="https://wa.me/8801762923318" target="_blank" rel="noopener noreferrer">+8801762923318</a></li>
                 <li><span>Islambag, R.K Road, Rangpur Sadar, Rangpur-5400</span></li>
@@ -638,13 +637,13 @@ export default function HomeClient({ products: initialProducts }) {
 
       {/* ======== MOBILE BOTTOM NAV ======== */}
       <nav className="mobile-bottom-nav">
-        <Link href="/" className="bottom-nav-item active">
+        <a href="/" className="bottom-nav-item active">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M3 9.5L12 3l9 6.5V21a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1V9.5z"/>
           </svg>
           <span>Home</span>
-        </Link>
-        <Link href="/products" className="bottom-nav-item">
+        </a>
+        <a href="/products" className="bottom-nav-item">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <line x1="8" y1="6" x2="21" y2="6"/>
             <line x1="8" y1="12" x2="21" y2="12"/>
@@ -654,8 +653,8 @@ export default function HomeClient({ products: initialProducts }) {
             <line x1="3" y1="18" x2="3.01" y2="18"/>
           </svg>
           <span>All Product</span>
-        </Link>
-        <Link href="/cart" className="bottom-nav-item">
+        </a>
+        <a href="/cart" className="bottom-nav-item">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
             <line x1="3" y1="6" x2="21" y2="6"/>
@@ -663,13 +662,13 @@ export default function HomeClient({ products: initialProducts }) {
           </svg>
           <span className="bottom-cart-count" id="bottomCartCount">{cartCount}</span>
           <span>Cart</span>
-        </Link>
-        <Link href="/track" className="bottom-nav-item">
+        </a>
+        <a href="/track" className="bottom-nav-item">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
           </svg>
           <span>Order Track</span>
-        </Link>
+        </a>
       </nav>
     </>
   );

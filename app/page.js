@@ -3,9 +3,6 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs } from 'firebase/firestore';
 import './style.css';
 
-// Revalidate 0: লাইভ ওয়েবসাইট gentlevibebd.com-এ ফায়ারবেসের নতুন প্রডাক্ট সাথে সাথে দেখাবে
-export const revalidate = 0;
-
 export const metadata = {
   title: 'Gentle Vibe BD — Premium Men\'s Fashion',
   description: 'Gentle Vibe BD — Bangladesh\'s premium destination for men\'s T-shirts, shirts, luxury watches, wallets, sunglasses & exclusive combo deals. Free delivery over ৳2000.',
@@ -16,8 +13,15 @@ async function getProducts() {
     const snap = await getDocs(collection(db, 'products'));
     const list = snap.docs
       .map(d => ({ id: d.id, ...d.data() }))
-      .filter(p => p.active !== false);
+      .filter(p => p.active !== false)
+      .sort((a, b) => {
+        // Sort newest products first (by createdAt, timestamp, or ID)
+        const timeA = a.createdAt?.seconds || a.timestamp?.seconds || 0;
+        const timeB = b.createdAt?.seconds || b.timestamp?.seconds || 0;
+        return timeB - timeA;
+      });
 
+    // Take top 8 newest products for Trending Now
     return list.slice(0, 8);
   } catch (e) {
     console.error("Firestore Home Products error:", e);
