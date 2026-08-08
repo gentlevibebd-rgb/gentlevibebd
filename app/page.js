@@ -15,7 +15,15 @@ async function getProducts() {
       .map(d => ({ id: d.id, ...d.data() }))
       .filter(p => p.active !== false);
 
-    return list.slice(0, 8);
+    // Filter products that have trending: true
+    const trendingList = list.filter(p => p.trending === true);
+    // Other active products
+    const otherList = list.filter(p => p.trending !== true);
+
+    // Combine trending products first, then fill remaining slots up to 8 items
+    const combined = [...trendingList, ...otherList];
+
+    return combined.slice(0, 8);
   } catch (e) {
     console.error("Firestore Home Products error:", e);
     return [];
