@@ -1,0 +1,75 @@
+/* Instant 0ms Cover for First Visit */
+html.gvb-first-visit body {
+  overflow: hidden !important;
+}
+
+html.gvb-first-visit .gvb-splash-container {
+  display: flex !important;
+  opacity: 1 !important;
+}
+
+.gvb-splash-container {
+  position: fixed;
+  inset: 0;
+  background: #141414;
+  z-index: 99999999;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: splashFadeOut 0.35s ease 1.05s forwards;
+}
+
+.gvb-splash-logo {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 38px;
+  font-weight: 600;
+  color: #f5f0e8;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.gvb-splash-logo em {
+  font-style: italic;
+  color: #c9a84c;
+}
+
+.gvb-splash-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: #c9a84c;
+  margin-bottom: 24px;
+  opacity: 0.9;
+}
+
+.gvb-splash-bar {
+  width: 200px;
+  height: 2.5px;
+  background: rgba(201, 168, 76, 0.18);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.gvb-splash-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #c9a84c, #e0b86a);
+  animation: splashProgress 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 0 12px rgba(201, 168, 76, 0.8);
+}
+
+@keyframes splashProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes splashFadeOut {
+  0% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}
