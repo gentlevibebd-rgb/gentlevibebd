@@ -1463,3 +1463,50 @@ footer .container {
     margin-bottom: 14px !important;
   }
 }
+
+/* Premium ~1s Smooth Entrance Animation for Products Page */
+@keyframes productsPageEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heroGlowFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.page-hero, .products-hero, .shop-hero, .hero-section, .hero {
+  animation: heroGlowFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.filter-controls, .filter-bar {
+  opacity: 0;
+  animation: productsPageEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards !important;
+}
+
+.products, .combo-grid, .product-grid {
+  opacity: 0;
+  animation: productsPageEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards !important;
+}
+
+.card, .product {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease !important;
+}
+
+.card:hover, .product:hover {
+  transform: translateY(-6px) scale(1.01) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(201, 168, 76, 0.5) !important;
+}

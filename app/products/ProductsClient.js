@@ -90,6 +90,7 @@ export default function ProductsClient({
 
   // ---------- initial ?cat= param handling ----------
   useEffect(() => {
+    if (typeof window !== "undefined") { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); }
     if (initialCatParam === "Sale") {
       setCategoryFilter("Sale");
       setCategoryLabel("🔥 Sale");

@@ -1280,3 +1280,98 @@ footer .container {
 .animate-preview {
   animation: fadeIn 0.5s ease forwards;
 }
+
+/* Display 100% Complete Product Image without cropping */
+.main-image-box img, #mainImg {
+  object-fit: contain !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 500px !important;
+  margin: 0 auto !important;
+  display: block !important;
+}
+
+.main-image-box {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 768px) {
+  .main-image-box img, #mainImg {
+    max-height: 380px !important;
+  }
+}
+
+/* Display 100% Complete Product Image without cropping */
+.main-image-box img, #mainImg {
+  object-fit: contain !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 500px !important;
+  margin: 0 auto !important;
+  display: block !important;
+}
+
+.main-image-box {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+/* Mobile Screen Perfect Fitting */
+@media (max-width: 768px) {
+  .main-image-box {
+    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    max-height: 380px !important;
+  }
+  
+  .main-image-box img, #mainImg {
+    max-height: 100% !important;
+    object-fit: contain !important;
+  }
+}
+
+/* Format Product Description Line-by-Line with clean spacing */
+#descText, .descText, .tab-pane.descText {
+  white-space: pre-line !important;
+  line-height: 1.85 !important;
+  font-size: 14.5px !important;
+  color: var(--text, #d4cfc5) !important;
+  padding: 14px 0 !important;
+  letter-spacing: 0.2px !important;
+}
+
+@media (max-width: 768px) {
+  #descText, .descText, .tab-pane.descText {
+    font-size: 13.5px !important;
+    line-height: 1.75 !important;
+  }
+}
+
+/* Related Area Always Visible */
+.related-area {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  padding: 50px 0 !important;
+}
+
+.related-track {
+  display: flex !important;
+  gap: 16px !important;
+  overflow-x: auto !important;
+  padding-bottom: 10px !important;
+}
+
+.related-card {
+  min-width: 180px !important;
+  cursor: pointer !important;
+}

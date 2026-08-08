@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, getDocs, query, where, limit, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
 
 const SIZE_CHARTS = {
   tshirt: {
@@ -79,7 +79,10 @@ export default function DetailsClient({
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") { window.scrollTo({ top: 0, left: 0, behavior: "instant" }); }
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+
     updateCartCount();
 
     if (product) {
@@ -90,7 +93,7 @@ export default function DetailsClient({
       }
     }
 
-    // Lazy load reviews & related products in background after page is already open
+    // Fetch Reviews & Related Products with Smart Recommendation
     if (productId) {
       // 1. Fetch Reviews
       getDocs(collection(db, `reviews_${productId}`))
@@ -101,21 +104,22 @@ export default function DetailsClient({
         .catch(() => {});
 
       // 2. Fetch Related Products
-      if (product?.category) {
-        const q = query(
-          collection(db, "products"),
-          where("category", "==", product.category),
-          limit(6)
-        );
-        getDocs(q)
-          .then((relSnap) => {
-            const list = relSnap.docs
-              .map((d) => ({ id: d.id, ...d.data() }))
-              .filter((p) => String(p.id) !== String(productId));
-            setRelatedProducts(list);
-          })
-          .catch(() => {});
-      }
+      getDocs(collection(db, "products"))
+        .then((relSnap) => {
+          const all = relSnap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .filter((p) => String(p.id) !== String(productId) && p.active !== false);
+
+          const catMatches = product?.category
+            ? all.filter((p) => (p.category || "").toLowerCase().trim() === (product.category || "").toLowerCase().trim())
+            : [];
+
+          const finalList = catMatches.length > 0 ? catMatches : all;
+          setRelatedProducts(finalList.slice(0, 6));
+        })
+        .catch((e) => {
+          console.error("Related fetch error:", e);
+        });
     }
 
     // Scroll reveal observer
@@ -323,7 +327,7 @@ export default function DetailsClient({
             left: "50%",
             transform: "translateX(-50%)",
             background: "#1e1e1e",
-            color: "#f5f5f7",
+            color: "#f5f0e8",
             padding: "12px 24px",
             borderRadius: "30px",
             fontSize: "14px",
