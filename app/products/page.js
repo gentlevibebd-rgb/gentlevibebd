@@ -9,7 +9,8 @@ export const metadata = {
     "Premium fashion, watches & accessories — curated for you. Shop T-shirts, watches, wallets, sunglasses and combo deals at Gentle Vibe BD.",
 };
 
-export const revalidate = 0;
+// Enable ISR: Background revalidation every 60 seconds
+export const revalidate = 60;
 
 const CAT_MAP = {
   tshirt: "tshirt",
@@ -34,7 +35,7 @@ async function getProductsData() {
     });
 
     const products = prodSnap.docs
-      .map((d) => d.data())
+      .map((d) => ({ id: d.id, ...d.data() }))
       .filter((p) => p.active !== false)
       .sort((a, b) => {
         const aNew = a.createdAt || 0;
@@ -57,16 +58,19 @@ async function getProductsData() {
 }
 
 export default async function ProductsPage({ searchParams }) {
-  // ✅ Next.js 15/16 থেকে searchParams একটা Promise — await করতে হবে
   const resolvedSearchParams = await searchParams;
   const { products, stockMap, categories } = await getProductsData();
   const initialCatParam = resolvedSearchParams?.cat || "all";
 
+  const serializedProducts = JSON.parse(JSON.stringify(products));
+  const serializedStockMap = JSON.parse(JSON.stringify(stockMap));
+  const serializedCategories = JSON.parse(JSON.stringify(categories));
+
   return (
     <ProductsClient
-      initialProducts={products}
-      initialStockMap={stockMap}
-      initialCategories={categories}
+      initialProducts={serializedProducts}
+      initialStockMap={serializedStockMap}
+      initialCategories={serializedCategories}
       initialCatParam={initialCatParam}
       catMap={CAT_MAP}
     />

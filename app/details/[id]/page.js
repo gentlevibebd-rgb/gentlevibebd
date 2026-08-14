@@ -3,6 +3,9 @@ import { doc, getDoc } from "firebase/firestore";
 import DetailsClient from "./DetailsClient";
 import "./details.css";
 
+// Enable ISR: Revalidate background product details every 60 seconds
+export const revalidate = 60;
+
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const id = resolvedParams?.id;
