@@ -26,12 +26,14 @@ function optimizeImg(url, width = 600) {
 export default function DetailsClient({
   productId,
   initialProduct,
-  initialInStock
+  initialInStock,
+  initialReviews,
+  initialRelated,
 }) {
   const [product] = useState(initialProduct);
   const [inStock] = useState(initialInStock);
-  const [reviews, setReviews] = useState([]);
-  const [relatedProducts, setRelatedProducts] = useState([]);
+const [reviews, setReviews] = useState(initialReviews || []);
+const [relatedProducts] = useState(initialRelated || []);
 
   const [cartCount, setCartCount] = useState(0);
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
@@ -91,35 +93,6 @@ export default function DetailsClient({
         const name = typeof first === "string" ? first : (first.name || first.hex || "");
         setSelectedColor(name);
       }
-    }
-
-    // Fetch Reviews & Related Products with Smart Recommendation
-    if (productId) {
-      // 1. Fetch Reviews
-      getDocs(collection(db, `reviews_${productId}`))
-        .then((revSnap) => {
-          const list = revSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-          setReviews(list);
-        })
-        .catch(() => {});
-
-      // 2. Fetch Related Products
-      getDocs(collection(db, "products"))
-        .then((relSnap) => {
-          const all = relSnap.docs
-            .map((d) => ({ id: d.id, ...d.data() }))
-            .filter((p) => String(p.id) !== String(productId) && p.active !== false);
-
-          const catMatches = product?.category
-            ? all.filter((p) => (p.category || "").toLowerCase().trim() === (product.category || "").toLowerCase().trim())
-            : [];
-
-          const finalList = catMatches.length > 0 ? catMatches : all;
-          setRelatedProducts(finalList.slice(0, 6));
-        })
-        .catch((e) => {
-          console.error("Related fetch error:", e);
-        });
     }
 
     // Scroll reveal observer

@@ -3,9 +3,6 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs } from 'firebase/firestore';
 import './style.css';
 
-// ISR Enabled: Revalidate background data every 60 seconds
-export const revalidate = 60;
-
 export const metadata = {
   title: 'Gentle Vibe BD — Premium Men\'s Fashion',
   description: 'Gentle Vibe BD — Bangladesh\'s premium destination for men\'s T-shirts, shirts, luxury watches, wallets, sunglasses & exclusive combo deals. Free delivery over ৳2000.',
