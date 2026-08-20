@@ -225,7 +225,9 @@ const [relatedProducts] = useState(initialRelated || []);
     }
     const added = handleAddToCart();
     if (added) {
-      window.location.href = "/checkout";
+      
+    localStorage.setItem("shipping", "");
+    window.location.href = "/checkout";
     }
   };
 

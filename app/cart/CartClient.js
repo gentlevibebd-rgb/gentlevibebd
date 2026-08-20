@@ -11,12 +11,11 @@ export default function CartClient() {
   const pathname = usePathname();
 
   const [cart, setCart] = useState([]);
-  const [shipping, setShipping] = useState("60");
+  const [shipping, setShipping] = useState(null); // Unselected by default
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  // ---------- load cart + shipping from localStorage ----------
   useEffect(() => {
     try {
       const data = localStorage.getItem("cart");
@@ -25,12 +24,17 @@ export default function CartClient() {
     } catch (e) {
       setCart([]);
     }
+
+    // Read saved shipping or default to null
     const savedShipping = localStorage.getItem("shipping");
-    if (savedShipping) setShipping(savedShipping);
+    if (savedShipping && (savedShipping === "60" || savedShipping === "120")) {
+      setShipping(savedShipping);
+    } else {
+      setShipping(null);
+    }
     setLoaded(true);
   }, []);
 
-  // ---------- navbar scroll shadow ----------
   useEffect(() => {
     function onScroll() {
       setScrolled(window.scrollY > 30);
@@ -39,7 +43,6 @@ export default function CartClient() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ---------- Facebook Pixel (3s delay after window load) ----------
   useEffect(() => {
     function loadPixel() {
       setTimeout(() => {
@@ -49,14 +52,9 @@ export default function CartClient() {
             n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
           };
           if (!f._fbq) f._fbq = n;
-          n.push = n;
-          n.loaded = !0;
-          n.version = "2.0";
-          n.queue = [];
-          t = b.createElement(e);
-          t.async = !0;
-          t.src = v;
-          s = b.getElementsByTagName(e)[0];
+          n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = [];
+          t = b.createElement(e); t.async = !0;
+          t.src = v; s = b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t, s);
         })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
         window.fbq("init", "4238792793034225");
@@ -71,7 +69,6 @@ export default function CartClient() {
     }
   }, []);
 
-  // ---------- persist cart helper ----------
   function saveCart(next) {
     setCart(next);
     localStorage.setItem("cart", JSON.stringify(next));
@@ -94,13 +91,12 @@ export default function CartClient() {
     localStorage.setItem("shipping", value);
   }
 
-  // ---------- computed totals ----------
   const subtotal = useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.qty, 0),
     [cart]
   );
   const isFree = subtotal >= FREE_DELIVERY_MIN;
-  const baseShipping = parseInt(shipping, 10) || 60;
+  const baseShipping = shipping ? parseInt(shipping, 10) : 0;
   const shippingCost = isFree ? 0 : baseShipping;
   const total = subtotal + shippingCost;
   const itemCountTotal = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -110,10 +106,13 @@ export default function CartClient() {
     window.location.href = "/products";
   }
 
-  // Clean Navigation to Checkout to prevent CSS leak
   function goToCheckout() {
     if (cart.length === 0) {
       alert("আপনার cart খালি! পণ্য যোগ করুন।");
+      return;
+    }
+    if (!isFree && !shipping) {
+      alert("⚠️ অনুগ্রহ করে ডেলিভারি এরিয়া সিলেক্ট করুন (রংপুরের ভেতরে বা বাইরে)!");
       return;
     }
     window.location.href = "/checkout";
@@ -125,7 +124,7 @@ export default function CartClient() {
     <>
       {/* NAVBAR */}
       <header className={`navbar${scrolled ? " scrolled" : ""}`} id="navbar">
-        <a href="/" className="logo">
+        <Link href="/" className="logo">
           <Image
             src="/545sd4fdsf54.webp"
             className="logo-img"
@@ -137,26 +136,26 @@ export default function CartClient() {
           <span className="logo-name">
             Gentle Vibe <em>BD</em>
           </span>
-        </a>
+        </Link>
         <nav className={`nav-links${mobileMenuOpen ? " open" : ""}`} id="navLinks">
-          <a href="/" onClick={() => setMobileMenuOpen(false)} className={isActive("/")}>
+          <Link href="/" onClick={() => setMobileMenuOpen(false)} className={isActive("/")}>
             Home
-          </a>
-          <a href="/products" onClick={() => setMobileMenuOpen(false)} className={isActive("/products")}>
+          </Link>
+          <Link href="/products" onClick={() => setMobileMenuOpen(false)} className={isActive("/products")}>
             Shop
-          </a>
+          </Link>
           <a href="/checkout" onClick={() => setMobileMenuOpen(false)} className={isActive("/checkout")}>
             Checkout
           </a>
-          <a href="/about" onClick={() => setMobileMenuOpen(false)} className={isActive("/about")}>
+          <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={isActive("/about")}>
             About
-          </a>
-          <a href="/contact" onClick={() => setMobileMenuOpen(false)} className={isActive("/contact")}>
+          </Link>
+          <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className={isActive("/contact")}>
             Contact Us
-          </a>
-          <a href="/track" onClick={() => setMobileMenuOpen(false)} className={isActive("/track")}>
+          </Link>
+          <Link href="/track" onClick={() => setMobileMenuOpen(false)} className={isActive("/track")}>
             Track Order
-          </a>
+          </Link>
         </nav>
         <div className="nav-actions">
           <a className="cart-btn" href="/cart">
@@ -275,7 +274,13 @@ export default function CartClient() {
               <div className="summary-row">
                 <span>Delivery Charge</span>
                 <span id="shipping">
-                  {isFree ? <span className="free-badge">FREE</span> : `৳${baseShipping}`}
+                  {isFree ? (
+                    <span className="free-badge">FREE</span>
+                  ) : shipping ? (
+                    `৳${shipping}`
+                  ) : (
+                    <span style={{ color: "#c9a84c", fontSize: "12px" }}>সিলেক্ট করুন</span>
+                  )}
                 </span>
               </div>
             </div>
@@ -311,9 +316,9 @@ export default function CartClient() {
               <span id="total">৳{total}</span>
             </div>
 
-            {/* Shipping Options */}
+            {/* Shipping Options (UNSELECTED BY DEFAULT) */}
             <div className="shipping-options" id="shippingOptionsBlock" style={{ display: isFree ? "none" : "block" }}>
-              <p className="shipping-title">Delivery Location</p>
+              <p className="shipping-title">Select Delivery Location *</p>
               <label className="ship-label">
                 <input
                   type="radio"
@@ -367,41 +372,18 @@ export default function CartClient() {
               Secure &amp; safe checkout
             </p>
           </div>
-
-          {/* Trust Badges */}
-          <div className="trust-badges">
-            <div className="badge-item">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              <span>100% Authentic</span>
-            </div>
-            <div className="badge-item">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              <span>Fast Delivery</span>
-            </div>
-            <div className="badge-item">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 7h12" />
-              </svg>
-              <span>Easy Returns</span>
-            </div>
-          </div>
         </aside>
       </main>
 
       {/* MOBILE BOTTOM NAV */}
       <nav className="mobile-bottom-nav">
-        <a href="/" className={`bottom-nav-item${isActive("/") ? " active" : ""}`}>
+        <Link href="/" className={`bottom-nav-item${isActive("/") ? " active" : ""}`}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M3 9.5L12 3l9 6.5V21a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1V9.5z" />
           </svg>
           <span>Home</span>
-        </a>
-        <a href="/products" className={`bottom-nav-item${isActive("/products") ? " active" : ""}`}>
+        </Link>
+        <Link href="/products" className={`bottom-nav-item${isActive("/products") ? " active" : ""}`}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <line x1="8" y1="6" x2="21" y2="6" />
             <line x1="8" y1="12" x2="21" y2="12" />
@@ -411,7 +393,7 @@ export default function CartClient() {
             <line x1="3" y1="18" x2="3.01" y2="18" />
           </svg>
           <span>All Product</span>
-        </a>
+        </Link>
         <a href="/cart" className={`bottom-nav-item${isActive("/cart") ? " active" : ""}`}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
@@ -421,12 +403,12 @@ export default function CartClient() {
           <span className="bottom-cart-count" id="bottomCartCount">{cartCount}</span>
           <span>Cart</span>
         </a>
-        <a href="/track" className={`bottom-nav-item${isActive("/track") ? " active" : ""}`}>
+        <Link href="/track" className={`bottom-nav-item${isActive("/track") ? " active" : ""}`}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
           </svg>
           <span>Order Track</span>
-        </a>
+        </Link>
       </nav>
     </>
   );

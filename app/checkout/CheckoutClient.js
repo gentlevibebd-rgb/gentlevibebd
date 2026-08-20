@@ -23,7 +23,7 @@ export default function CheckoutClient() {
 
   // ---------- cart + shipping ----------
   const [cart, setCart] = useState([]);
-  const [shipping, setShipping] = useState("60");
+  const [shipping, setShipping] = useState(null); // Unselected by default
   const [loaded, setLoaded] = useState(false);
 
   // ---------- form fields ----------
@@ -60,8 +60,13 @@ export default function CheckoutClient() {
     } catch (e) {
       setCart([]);
     }
+
     const savedShipping = localStorage.getItem("shipping");
-    if (savedShipping) setShipping(savedShipping);
+    if (savedShipping === "60" || savedShipping === "120") {
+      setShipping(savedShipping);
+    } else {
+      setShipping(null);
+    }
     setLoaded(true);
   }, []);
 
@@ -85,11 +90,10 @@ export default function CheckoutClient() {
     return () => document.removeEventListener("click", onDocClick);
   }, []);
 
-  // ---------- Facebook Pixel (3s delay after window load) ----------
+  // ---------- Facebook Pixel ----------
   useEffect(() => {
     function loadPixel() {
       setTimeout(() => {
-        /* eslint-disable */
         (function (f, b, e, v, n, t, s) {
           if (f.fbq) return;
           n = f.fbq = function () {
@@ -108,7 +112,6 @@ export default function CheckoutClient() {
         })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
         window.fbq("init", "4238792793034225");
         window.fbq("track", "PageView");
-        /* eslint-enable */
       }, 3000);
     }
     if (document.readyState === "complete") {
@@ -151,7 +154,7 @@ export default function CheckoutClient() {
     [cart]
   );
   const isFree = subtotal >= FREE_DELIVERY_MIN;
-  const baseShipping = parseInt(shipping, 10) || 60;
+  const baseShipping = (shipping === "60" || shipping === "120") ? parseInt(shipping, 10) : 0;
   const shippingCost = isFree ? 0 : baseShipping;
   const total = subtotal + shippingCost;
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -182,6 +185,16 @@ export default function CheckoutClient() {
   // ---------- place order ----------
   async function placeOrder() {
     setOrderMsg({ text: "", color: "" });
+
+    // 1. Strict Delivery Area Check
+    if (!isFree && shipping !== "60" && shipping !== "120") {
+      setOrderMsg({ text: "⚠️ অনুগ্রহ করে ডেলিভারি এরিয়া সিলেক্ট করুন (রংপুরের ভেতরে বা বাইরে)!", color: "#c0392b" });
+      const block = document.getElementById("shippingOptions");
+      if (block) {
+        block.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
 
     const trimmedName = name.trim();
     const trimmedPhone = phone.trim();
@@ -345,7 +358,7 @@ export default function CheckoutClient() {
       setTimeout(() => {
         localStorage.removeItem("cart");
         localStorage.removeItem("shipping");
-        router.push("/order-confirmed");
+        window.location.href = "/order-confirmed";
       }, 1000);
     } catch (err) {
       console.error("Order error:", err);
@@ -369,7 +382,7 @@ export default function CheckoutClient() {
       {/* NAVBAR */}
       <header className={`navbar${scrolled ? " scrolled" : ""}`} id="navbar">
         <a href="/" className="logo">
-          <Image src="/545sd4fdsf54.webp" className="logo-img" alt="Logo" width={36} height={36} />
+          <Image src="/545sd4fdsf54.webp" className="logo-img" alt="Logo" width={36} height={36} unoptimized />
           <span className="logo-name">
             Gentle Vibe <em>BD</em>
           </span>
@@ -395,14 +408,14 @@ export default function CheckoutClient() {
           </a>
         </nav>
         <div className="nav-actions">
-          <button className="cart-btn" onClick={() => router.push("/cart")}>
+          <a className="cart-btn" href="/cart">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
               <line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 01-8 0" />
             </svg>
             <span className="cart-count" id="cartCount">{cartCount}</span>
-          </button>
+          </a>
           <button
             className={`menu-toggle${mobileMenuOpen ? " open" : ""}`}
             id="menuBtn"
@@ -440,7 +453,7 @@ export default function CheckoutClient() {
                 ) : (
                   cart.map((item, index) => (
                     <div className="cart-item" key={`${item.id}-${item.size || ""}-${index}`}>
-                      <Image src={item.image} alt={item.name} width={80} height={80} />
+                      <Image src={item.image || "/favicon.png"} alt={item.name} width={80} height={80} unoptimized />
                       <div className="item-details">
                         <h4>{item.name}</h4>
                         <p className="item-meta">Size: {item.size || "N/A"}</p>
@@ -464,7 +477,7 @@ export default function CheckoutClient() {
 
             <section className="card shipping-card">
               <div className="card-header">
-                <h2>Select Delivery Area</h2>
+                <h2>Select Delivery Area *</h2>
               </div>
               <div className="shipping-options" id="shippingOptions">
                 <label
@@ -525,7 +538,15 @@ export default function CheckoutClient() {
               </div>
               <div className="summary-row">
                 <span>Shipping</span>
-                <span id="shippingDisplay">{isFree ? <span className="free-badge">FREE</span> : `৳${baseShipping}`}</span>
+                <span id="shippingDisplay">
+                  {isFree ? (
+                    <span className="free-badge">FREE</span>
+                  ) : shipping ? (
+                    `৳${shipping}`
+                  ) : (
+                    <span style={{ color: "#c9a84c", fontSize: "12px" }}>সিলেক্ট করুন</span>
+                  )}
+                </span>
               </div>
               <div className="summary-divider"></div>
               <div className="summary-row total-row">
@@ -655,17 +676,6 @@ export default function CheckoutClient() {
       <footer className="site-footer">
         <p>© 2026 Gentle Vibe BD — All rights reserved</p>
       </footer>
-
-      {/* Meta Pixel noscript fallback */}
-      <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src="https://www.facebook.com/tr?id=4238792793034225&ev=PageView&noscript=1"
-          alt=""
-        />
-      </noscript>
     </>
   );
 }
