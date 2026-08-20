@@ -1375,3 +1375,71 @@ footer .container {
   min-width: 180px !important;
   cursor: pointer !important;
 }
+
+/* Details Page Left & Right Container Padding Fix */
+.product-main .nav-container, .main-grid {
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+}
+
+@media (max-width: 768px) {
+  .product-main .nav-container, .main-grid {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* Details Page Text Elements Padding & Margin Fix */
+.info-section {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+.product-name, 
+.product-header, 
+.price-container, 
+.option-wrapper, 
+.product-meta, 
+.trust-grid {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+}
+
+.breadcrumb-bar .nav-container, 
+.tabs-area .nav-container {
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+}
+
+@media (max-width: 768px) {
+  .info-section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .breadcrumb-bar .nav-container, 
+  .tabs-area .nav-container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* PC / Desktop View Only Container & Text Padding Fix */
+@media (min-width: 769px) {
+  .product-main .nav-container, 
+  .main-grid,
+  .breadcrumb-bar .nav-container, 
+  .tabs-area .nav-container {
+    max-width: 1280px !important;
+    margin: 0 auto !important;
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+  }
+
+  .info-section {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+}
