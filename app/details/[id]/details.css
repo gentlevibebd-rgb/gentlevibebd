@@ -520,10 +520,19 @@ footer .container { display: block; }
   .tabs-layout { grid-template-columns: 1fr; }
 }
 
+/* ==========================================================
+   RESPONSIVE — MOBILE FULL-WIDTH (3px Edge Gap)
+   ========================================================== */
 @media (max-width: 768px) {
   body { padding-bottom: 90px; }
-  .container, .nav-container { padding: 0 16px; }
-  .navbar { padding: 0 16px; }
+
+  /* দুই পাশে মাত্র ৩ পিক্সেল গ্যাপ */
+  .container, .nav-container { 
+    padding: 0 3px !important; 
+    max-width: 100% !important;
+  }
+  
+  .navbar { padding: 0 10px !important; }
 
   .nav-links {
     position: fixed; top: var(--navbar-h); left: 0; right: 0;
@@ -533,32 +542,64 @@ footer .container { display: block; }
     border-bottom: 1px solid var(--line);
   }
   .nav-links.open { transform: translateY(0); opacity: 1; pointer-events: all; }
-  .nav-links a { width: 100%; padding: 14px 24px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .nav-links a { width: 100%; padding: 14px 20px; border-bottom: 1px solid var(--line); font-size: 14px; }
   .menu-toggle { display: flex; }
 
   .breadcrumb-bar { display: none; }
-  .product-main { padding: 0; }
-  .main-grid { grid-template-columns: 1fr; gap: 16px; }
+  .product-main { padding: 0 !important; }
+  .main-grid { 
+    display: grid !important; 
+    grid-template-columns: 1fr !important; 
+    gap: 12px !important; 
+  }
 
-  .gallery-section { position: static; }
+  .gallery-section { 
+    position: static !important; 
+    height: auto !important; 
+  }
   .gallery-container { flex-direction: column; }
   .thumbnail-strip { display: none; }
-  .main-image-box { border-radius: 0; border-left: none; border-right: none; }
+  
+  /* মেইন ইমেজ স্ক্রিনের বর্ডারের সাথে লেগে থাকবে */
+  .main-image-box { 
+    border-radius: 0 !important; 
+    border-left: none !important; 
+    border-right: none !important; 
+  }
   .mobile-dots { display: flex; }
 
-  .info-section { border-radius: 0; border-left: none; border-right: none; padding: 24px 16px; }
+  /* ইনফো সেকশন ফুল-ওয়াইড */
+  .info-section { 
+    border-radius: 0 !important; 
+    border-left: none !important; 
+    border-right: none !important; 
+    padding: 20px 6px !important; 
+  }
   .product-title { font-size: 24px; }
   .current-price { font-size: 28px; }
 
-  .cta-group { display: none; /* Handled by mobile fixed bottom bar */ }
+  /* ভেতরের কার্ডগুলো চওড়া হবে */
+  .price-card, 
+  .trust-strip, 
+  .tab-panel, 
+  .product-meta-card, 
+  .review-item, 
+  .review-form-card, 
+  .rating-score-card, 
+  .help-card {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .cta-group { display: none; }
 
   /* Mobile Sticky Bar */
   .mobile-sticky-bar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
     background: rgba(14, 15, 17, 0.95); backdrop-filter: blur(18px);
     border-top: 1px solid var(--gold-dim);
-    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) !important;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
     box-shadow: var(--shadow-card);
   }
   .m-price-col { display: flex; flex-direction: column; flex-shrink: 0; }
@@ -575,7 +616,7 @@ footer .container { display: block; }
   .m-act-btn.buy { background: var(--gold); border: none; color: #0e0f11; }
 
   footer { padding: 56px 0 100px; }
-  .foot-grid { grid-template-columns: 1fr 1fr; gap: 26px 16px; }
+  .foot-grid { grid-template-columns: 1fr 1fr; gap: 26px 12px; }
   .foot-grid > div:first-child { grid-column: 1 / -1; text-align: center; }
   .foot-grid > div:first-child .socials { justify-content: center; }
   .foot-desc { margin: 0 auto 20px; }
